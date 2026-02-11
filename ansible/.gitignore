@@ -1,0 +1,42 @@
+# ==============================================
+# Ansible .gitignore
+# ==============================================
+
+# SSH Private Keys
+*.pem
+*.key
+*.ppk
+
+# Ansible Runtime Files
+*.retry
+*.log
+ansible.log
+
+# Environment Files
+.env
+.env.local
+*.env
+
+# Vault Files
+vault-pass.txt
+.vault_pass
+
+# Backup Files
+*.backup
+*.bak
+*~
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# IDE Files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary Files
+tmp/
+temp/
+*.tmp
