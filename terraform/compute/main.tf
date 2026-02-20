@@ -1,4 +1,72 @@
 # ==============================================
+# IAM Role for EC2 Instance (Parameter Store Access)
+# ==============================================
+resource "aws_iam_role" "ec2_role" {
+  name = "${var.project_name}-${var.environment}-ec2-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      }
+    ]
+  })
+
+  tags = merge(
+    var.common_tags,
+    {
+      Name = "${var.project_name}-${var.environment}-ec2-role"
+    }
+  )
+}
+
+# IAM Policy for Parameter Store Access
+resource "aws_iam_role_policy" "parameter_store_policy" {
+  name = "${var.project_name}-${var.environment}-parameter-store-policy"
+  role = aws_iam_role.ec2_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ssm:GetParameter",
+          "ssm:GetParameters",
+          "ssm:GetParametersByPath"
+        ]
+        Resource = "arn:aws:ssm:*:*:parameter/${var.project_name}/${var.environment}/*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "kms:Decrypt"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+# EC2 Instance Profile
+resource "aws_iam_instance_profile" "ec2_profile" {
+  name = "${var.project_name}-${var.environment}-ec2-profile"
+  role = aws_iam_role.ec2_role.name
+
+  tags = merge(
+    var.common_tags,
+    {
+      Name = "${var.project_name}-${var.environment}-ec2-profile"
+    }
+  )
+}
+
+# ==============================================
 # TLS Private Key Generation
 # ==============================================
 resource "tls_private_key" "ec2_key" {
@@ -39,6 +107,7 @@ resource "aws_instance" "web_server" {
   subnet_id              = var.subnet_id
   vpc_security_group_ids = [var.security_group_id]
   key_name               = aws_key_pair.ec2_key_pair.key_name
+  iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
 
   # Root volume configuration
   root_block_device {
@@ -68,5 +137,5 @@ resource "aws_instance" "web_server" {
   )
 
   # Ensure the instance is created after the key pair
-  depends_on = [aws_key_pair.ec2_key_pair]
+  depends_on = [aws_key_pair.ec2_key_pair, aws_iam_instance_profile.ec2_profile]
 }

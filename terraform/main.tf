@@ -36,6 +36,25 @@ module "security" {
 }
 
 # ==============================================
+# Parameter Store Module
+# ==============================================
+module "parameters" {
+  source = "./parameters"
+
+  project_name         = var.project_name
+  environment          = var.environment
+  postgres_db          = var.postgres_db
+  postgres_user        = var.postgres_user
+  postgres_password    = var.postgres_password
+  backend_port         = var.backend_port
+  db_host              = var.db_host
+  db_port              = var.db_port
+  compose_project_name = var.compose_project_name
+  frontend_port        = var.frontend_port
+  common_tags          = var.common_tags
+}
+
+# ==============================================
 # Compute Module
 # ==============================================
 module "compute" {
@@ -51,5 +70,5 @@ module "compute" {
   common_tags       = var.common_tags
 
   # Ensure instance is created after network and security resources
-  depends_on = [module.network, module.security]
+  depends_on = [module.network, module.security, module.parameters]
 }

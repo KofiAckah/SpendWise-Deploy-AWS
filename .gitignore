@@ -16,6 +16,8 @@
 # ==============================================
 *.tfvars
 *.tfvars.json
+# Exception: example.tfvars is safe to commit (no real secrets)
+!example.tfvars
 
 # Override files
 override.tf

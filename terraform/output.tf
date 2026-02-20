@@ -65,6 +65,17 @@ output "ssh_private_key_path" {
   value       = module.compute.private_key_path
 }
 
+# Parameter Store Outputs
+output "parameter_store_path" {
+  description = "Parameter Store path prefix for application configuration"
+  value       = module.parameters.parameter_path_prefix
+}
+
+output "parameter_names" {
+  description = "Map of parameter names in Parameter Store"
+  value       = module.parameters.parameter_names
+}
+
 # Connection Information
 output "ssh_connection_command" {
   description = "Command to SSH into the instance"
@@ -74,14 +85,15 @@ output "ssh_connection_command" {
 output "deployment_info" {
   description = "Summary of deployed infrastructure"
   value = {
-    region            = var.aws_region
-    environment       = var.environment
-    project           = var.project_name
-    vpc_id            = module.network.vpc_id
-    subnet_id         = module.network.public_subnet_id
-    security_group_id = module.security.security_group_id
-    instance_id       = module.compute.instance_id
-    public_ip         = module.compute.public_ip
-    ssh_key_location  = module.compute.private_key_path
+    region               = var.aws_region
+    environment          = var.environment
+    project              = var.project_name
+    vpc_id               = module.network.vpc_id
+    subnet_id            = module.network.public_subnet_id
+    security_group_id    = module.security.security_group_id
+    instance_id          = module.compute.instance_id
+    public_ip            = module.compute.public_ip
+    ssh_key_location     = module.compute.private_key_path
+    parameter_store_path = module.parameters.parameter_path_prefix
   }
 }
